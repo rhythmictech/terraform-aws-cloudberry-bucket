@@ -8,7 +8,6 @@ locals {
   account_id   = data.aws_caller_identity.current.account_id
   bucket_name  = var.bucket_name == null ? "${local.account_id}-${local.region}-cloudberry-${var.bucket_suffix}" : var.bucket_name
   iam_role_arn = var.iam_role_arn == null ? aws_iam_role.this[0].id : var.iam_role_arn
-  kms_key_id   = var.kms_key_id == null ? "aws/s3" : var.kms_key_id
   region       = data.aws_region.current.name
 
   logging = var.s3_access_logging_bucket == null ? [] : [{
@@ -56,7 +55,7 @@ resource "aws_s3_bucket" "this" {
     rule {
       apply_server_side_encryption_by_default {
         sse_algorithm     = "aws:kms"
-        kms_master_key_id = local.kms_key_id
+        kms_master_key_id = var.kms_key_id
       }
     }
   }
@@ -115,8 +114,12 @@ data "aws_iam_policy_document" "this" {
 
   statement {
     effect    = "Allow"
-    actions   = ["s3:ListBucket"]
     resources = ["arn:aws:s3:::${aws_s3_bucket.this.id}"]
+
+    actions = [
+      "s3:ListBucket",
+      "s3:Get*"
+    ]
   }
 
   statement {
