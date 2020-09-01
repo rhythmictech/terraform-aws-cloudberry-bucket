@@ -1,10 +1,5 @@
+module "cloudberry-infra-bucket" {
+  source = "rhythmictech/cloudberry-bucket/aws"
 
-module "example" {
-  source = "../.."
-
-  name = "test"
-}
-
-output "example" {
-  value = module.example
+  bucket_suffix = "documents"
 }
